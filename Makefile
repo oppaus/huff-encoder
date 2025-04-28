@@ -1,7 +1,7 @@
 CC := clang
 
 all:
-	${CC} -o compress main.c
+	${CC} main.c
 
 debug:
-	${CC} -g -o compress main.c
+	${CC} -g main.c
