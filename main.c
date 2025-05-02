@@ -7,9 +7,6 @@
 
 #define MAXVAL 127
 
-// TAB: 9, NEWLINE: 10
-enum { TAB = '\t', NEWLINE = '\n', SPACE = ' ', DEL = '\x7f' };
-
 struct node {
   int id;
   int count;
@@ -30,7 +27,11 @@ int frqcmp(const void *a, const void *b) {
 
 void printArray(struct node arr[], size_t size) {
   for (size_t i = 32; i < size; ++i) {
-    printf("[%c] %d,", arr[i].value, arr[i].count);
+    if (arr[i].value == '\n' || arr[i].value == '\r') {
+      printf("[%s] %d,", "\\n", arr[i].count);
+    } else
+      printf("[%c] %d,", arr[i].value, arr[i].count);
+
     if (i % 10 == 0)
       printf("\n");
   }
@@ -47,16 +48,15 @@ void printTree(struct node *tree) {
 }
 
 void dotTree(struct node *tree) {
-  char subg[] = "%c->{%c,%c};";
-  char attr[] = "%c[label='%c\\n%i'];";
+  char subg[] = "%i->{%i,%i};";
+  char attr[] = "%i[label=\"%i\\n%i\"];";
   if (tree != NULL) {
     dotTree(tree->left);
 
     if (tree->left && tree->right)
-      printf(subg, tree->count, tree->left->count, tree->right->count);
+      printf(subg, tree->id, tree->left->id, tree->right->id);
 
-    if (isprint(tree->value))
-      printf(attr, tree->value, tree->value, tree->count);
+    printf(attr, tree->id, tree->value, tree->count);
 
     dotTree(tree->right);
   }
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
   // NOTE: the lut tracks with this, i.e., no need to sort the lut
   qsort(freq, size, sizeof(struct node), frqcmp);
 
-  printArray(freq, size);
+  // printArray(freq, size);
 
   //  TODO: This works, but I'm not quite sure how yet
   //
@@ -114,6 +114,7 @@ int main(int argc, char **argv) {
 
   // convert to a binary tree
   int idx = 0;
+  int newid = MAXVAL + 1;
   while (idx < MAXVAL - 1) {
     // get the next two minimum values, lut must be kept in 'priority' order
     // by min(count)
@@ -124,6 +125,7 @@ int main(int argc, char **argv) {
     struct node *new = next++;
 
     // Sum the weights and create tree pointing to these nodes
+    new->id = newid++;
     new->count = n1->count + n2->count;
     new->left = n1;
     new->right = n2;
@@ -159,5 +161,5 @@ int main(int argc, char **argv) {
 
     lut[slot] = new;
   }
-  // graphTree(lut[idx]);
+  graphTree(lut[idx]);
 }
