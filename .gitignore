@@ -2,3 +2,5 @@ challenge-huffman.zip
 test.txt
 compress*
 a.out*
+*.o
+test
