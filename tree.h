@@ -17,6 +17,7 @@ void set_freq(int c, int v);
 void init_tree();
 void increment(int c);
 void make_binary();
+int depth();
 struct node *get_root();
 
 #ifdef __cplusplus

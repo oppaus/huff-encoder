@@ -15,14 +15,17 @@ protected:
     set_freq('Z', 2);
     set_freq('*', 0);
     set_freq('c', 0);
+
+    make_binary();
   }
 };
 
 TEST_F(CompressorTest, MakeTreeWorks) {
-  make_binary();
   struct node *t = get_root();
   EXPECT_EQ(t->count, 306);
 }
+
+TEST_F(CompressorTest, TreeDepth) { EXPECT_EQ(depth(), 5); }
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);

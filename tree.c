@@ -11,6 +11,7 @@ static size_t size = sizeof(freq) / sizeof(freq[0]);
 // tracks pointers into the frequency table while creating sorted trees
 // will hold the binary tree
 static struct node *lut[MAXVAL];
+static struct node *_root;
 
 // allocate storage for internal (non-leaf) nodes
 static struct node internals[MAXVAL - 1];
@@ -121,6 +122,20 @@ void make_binary() {
   qsort(freq, size, sizeof(struct node), frqcmp);
 
   _treeify();
+
+  _root = lut[MAXVAL - 1];
 }
+
+int _get_depth(struct node *root) {
+  if (root == NULL)
+    return -1;
+
+  int ld = _get_depth(root->left);
+  int rd = _get_depth(root->right);
+
+  return (ld > rd ? ld : rd) + 1;
+}
+
+int depth() { return _get_depth(_root); }
 
 struct node *get_root() { return lut[MAXVAL - 1]; }

@@ -57,4 +57,5 @@ int main(int argc, char **argv) {
   // struct node *root = get_root();
   // printf("Root Node Value: %i\n", root->count);
   // graphTree(root);
+  // printf("Depth: %i\n", depth());
 }
