@@ -54,8 +54,6 @@ int main(int argc, char **argv) {
   // convert to a binary tree
   make_binary();
 
-  // struct node *root = get_root();
-  // printf("Root Node Value: %i\n", root->count);
-  // graphTree(root);
-  // printf("Depth: %i\n", depth());
+  struct node *root = get_root();
+  graphTree(root);
 }

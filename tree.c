@@ -1,12 +1,13 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "tree.h"
 
 // enough to store all the leaf nodes in a binary table
 static struct node freq[MAXVAL];
-static size_t size = sizeof(freq) / sizeof(freq[0]);
+static size_t nelems = sizeof(freq) / sizeof(freq[0]);
 
 // tracks pointers into the frequency table while creating sorted trees
 // will hold the binary tree
@@ -34,6 +35,7 @@ void printArray(struct node arr[], size_t size) {
   printf("\n");
 }
 
+// initializes the frequency array and pointer look up table
 void init_tree() {
   for (int i = 0; i < MAXVAL; i++) {
     freq[i].id = i + 1;
@@ -45,11 +47,14 @@ void init_tree() {
   }
 }
 
+// increments the cound of the given character in the frequency table
 void increment(int c) {
   if (c < 127)
     freq[c].count++;
 }
 
+// converts the look up table into a binary tree, skipping characters not seen
+// in the file
 static void _treeify() {
   int idx = 0;
   int newid = MAXVAL + 1;
@@ -95,12 +100,12 @@ static void _treeify() {
     }
 
     // shift nodes left until a spot is found, mind the boundary
-    do {
+    while (lut[slot + 1]->count < new->count) {
       lut[slot] = lut[slot + 1];
       slot++;
       if (slot == MAXVAL - 1)
         break;
-    } while (lut[slot]->count < new->count);
+    }
 
     lut[slot] = new;
   }
@@ -119,14 +124,17 @@ static int frqcmp(const void *a, const void *b) {
 void make_binary() {
   // smallest frequencies to largest
   // NOTE: the lut tracks with this, i.e., no need to sort the lut
-  qsort(freq, size, sizeof(struct node), frqcmp);
+  qsort(freq, nelems, sizeof(struct node), frqcmp);
+
+  // printArray(freq, nelems);
 
   _treeify();
 
   _root = lut[MAXVAL - 1];
 }
 
-int _get_depth(struct node *root) {
+// private recursive function to find the depth
+static int _get_depth(struct node *root) {
   if (root == NULL)
     return -1;
 
@@ -136,6 +144,43 @@ int _get_depth(struct node *root) {
   return (ld > rd ? ld : rd) + 1;
 }
 
+// public function to return the depth
 int depth() { return _get_depth(_root); }
 
-struct node *get_root() { return lut[MAXVAL - 1]; }
+static void _build_codec(struct node *n, uint32_t path, int depth) {
+  if (n == NULL)
+    return;
+
+  depth++;
+  if (n->left == NULL && n->right == NULL) {
+    struct prefix *p = &codec[n->value];
+    p->value = n->value;
+    p->count = n->count;
+    p->code = path;
+    p->bits = depth;
+  } else {
+    _build_codec(n->left, (path << 1), depth);
+    _build_codec(n->right, (path << 1) | 1, depth);
+  }
+
+  depth--;
+  path = path >> 1;
+}
+
+// traverse the tree and build the prefix codes
+struct prefix *codify() {
+  // initialize the codec table
+  for (int i = 0; i < MAXVAL; i++) {
+    codec[i].count = 0;
+    codec[i].value = 0;
+    codec[i].code = 0;
+    codec[i].bits = 0;
+  }
+
+  uint32_t path = 0;
+  _build_codec(_root, path, -1);
+
+  return codec;
+}
+
+struct node *get_root() { return _root; }

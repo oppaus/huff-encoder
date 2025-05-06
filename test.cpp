@@ -13,8 +13,6 @@ protected:
     set_freq('M', 24);
     set_freq('U', 37);
     set_freq('Z', 2);
-    set_freq('*', 0);
-    set_freq('c', 0);
 
     make_binary();
   }
@@ -25,7 +23,18 @@ TEST_F(CompressorTest, MakeTreeWorks) {
   EXPECT_EQ(t->count, 306);
 }
 
-TEST_F(CompressorTest, TreeDepth) { EXPECT_EQ(depth(), 5); }
+TEST_F(CompressorTest, TreeDepth) { EXPECT_EQ(depth(), 6); }
+
+TEST_F(CompressorTest, CodePrefix) {
+  struct prefix *tbl = codify();
+  EXPECT_EQ(tbl['C'].count, 32);
+  EXPECT_EQ(tbl['Z'].count, 2);
+
+  EXPECT_EQ(tbl['C'].bits, 4);
+  EXPECT_EQ(tbl['E'].bits, 1);
+  EXPECT_EQ(tbl['L'].bits, 3);
+  EXPECT_EQ(tbl['Z'].bits, 6);
+}
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
