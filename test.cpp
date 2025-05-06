@@ -34,6 +34,11 @@ TEST_F(CompressorTest, CodePrefix) {
   EXPECT_EQ(tbl['E'].bits, 1);
   EXPECT_EQ(tbl['L'].bits, 3);
   EXPECT_EQ(tbl['Z'].bits, 6);
+
+  int len = tbl['C'].bits;
+  char str[33];
+  bitstring(str, len, tbl['C'].bits);
+  EXPECT_EQ(str, "1110");
 }
 
 int main(int argc, char **argv) {

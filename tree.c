@@ -1,7 +1,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "tree.h"
 
@@ -19,6 +18,15 @@ static struct node internals[MAXVAL - 1];
 static struct node *next = &internals[0];
 
 void set_freq(int c, int v) { freq[c].count = v; }
+
+void bitstring(char *str, int len, uint32_t code) {
+  for (int i = 0, j = len - 1; i < len; i++, j--)
+    if ((code >> i) & 1)
+      str[j] = '1';
+
+  str[len] = '\0';
+  printf("%i: %s\n", code, str);
+}
 
 void printArray(struct node arr[], size_t size) {
   // TODO: stop printing char's (that's why I'm skipping), because of things

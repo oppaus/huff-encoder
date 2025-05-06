@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "tree.h"
 
@@ -47,13 +48,29 @@ int main(int argc, char **argv) {
   // NOTE: no error handling (at least for now)
   FILE *fp = fopen(file, "r");
 
-  int ch;
-  while ((ch = getc(fp)) != EOF)
-    increment(ch);
+  // int ch;
+  // while ((ch = getc(fp)) != EOF)
+  //   increment(ch);
+
+  set_freq('C', 32);
+  set_freq('D', 42);
+  set_freq('E', 120);
+  set_freq('K', 7);
+  set_freq('L', 42);
+  set_freq('M', 24);
+  set_freq('U', 37);
+  set_freq('Z', 2);
 
   // convert to a binary tree
   make_binary();
 
-  struct node *root = get_root();
-  graphTree(root);
+  struct prefix *tbl = codify();
+
+  int len = tbl['C'].bits;
+  char str[33];
+  memset(str, '0', sizeof(str));
+  bitstring(str, len, tbl['C'].code);
+
+  // struct node *root = get_root();
+  // graphTree(root);
 }
