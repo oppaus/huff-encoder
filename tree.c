@@ -19,6 +19,8 @@ static struct node *next = &internals[0];
 
 void set_freq(int c, int v) { freq[c].count = v; }
 
+struct node *get_freq() { return freq; }
+
 void bitstring(char *str, int len, uint32_t code) {
   for (int i = 0, j = len - 1; i < len; i++, j--)
     if ((code >> i) & 1)

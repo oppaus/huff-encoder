@@ -24,6 +24,7 @@ extern "C" {
 
 // use for testing to setup mock frequencies
 void set_freq(int c, int v);
+struct node *get_freq();
 void bitstring(char *str, int len, uint32_t bits);
 void init_tree();
 void increment(int c);

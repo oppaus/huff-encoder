@@ -1,12 +1,16 @@
 // Huffman Encoder/Decoder
 // https://codingchallenges.fyi/challenges/challenge-huffman/
 
+#include <assert.h>
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "tree.h"
+
+#define MIN(a, b) (a < b) ? a : b;
 
 void printTree(struct node *tree) {
   if (tree != NULL) {
@@ -43,34 +47,99 @@ int main(int argc, char **argv) {
 
   init_tree();
 
-  char *file = "test.txt";
+  char *infile = "test.txt";
+  char *outfile = "test.txt.jz";
 
-  // NOTE: no error handling (at least for now)
-  FILE *fp = fopen(file, "r");
+  FILE *infp = fopen(infile, "r");
 
-  // int ch;
-  // while ((ch = getc(fp)) != EOF)
-  //   increment(ch);
+  if (infp == NULL) {
+    fprintf(stderr, "Error opening %s\n", infile);
+    exit(errno);
+  }
 
-  set_freq('C', 32);
-  set_freq('D', 42);
-  set_freq('E', 120);
-  set_freq('K', 7);
-  set_freq('L', 42);
-  set_freq('M', 24);
-  set_freq('U', 37);
-  set_freq('Z', 2);
+  int ch;
+  while ((ch = getc(infp)) != EOF)
+    increment(ch);
 
   // convert to a binary tree
   make_binary();
 
-  struct prefix *tbl = codify();
+  // write out the tree
+  FILE *outfp = fopen(outfile, "wb");
 
-  int len = tbl['C'].bits;
-  char str[33];
-  memset(str, '0', sizeof(str));
-  bitstring(str, len, tbl['C'].code);
+  if (outfp == NULL) {
+    fprintf(stderr, "Error opening %s\n", outfile);
+    exit(errno);
+  }
 
-  // struct node *root = get_root();
-  // graphTree(root);
+  struct node *freq = get_freq();
+  struct node *root = get_root();
+
+  // TODO: change this to return total number of bits
+  // make a get_codify accessor method
+  struct prefix *codec = codify();
+
+  // write out the frequency table
+  size_t bytes_written = fwrite(freq, sizeof(struct node), MAXVAL, outfp);
+
+  if (bytes_written != MAXVAL) {
+    fprintf(stderr, "Problem writing frequency table\n");
+    exit(1);
+  }
+
+  // write out size of compressed data
+  int compressed_size = 0;
+  for (int i = 0; i < MAXVAL; i++)
+    if (codec[i].count)
+      compressed_size += codec[i].count;
+
+  fputc(compressed_size, outfp);
+
+  int buf_capacity = 8;
+  unsigned char buffer = 0;
+  // read (again) from the input text file to compress
+  rewind(infp);
+  while ((ch = getc(infp)) != EOF) {
+    struct prefix *p = &codec[ch];
+    int len = p->bits;
+    uint32_t code = p->code;
+
+    int bits_remaining = len;
+    while (bits_remaining) {
+
+      // pack buffer, write fully-packed bytes, refreshing the buffer as
+      // needed, some codes will take multiple bytes
+      int bits_to_write = MIN(bits_remaining, buf_capacity);
+
+      // make room for the next bits
+      buffer = buffer << bits_to_write;
+
+      // Isolate the bits that will fill buffer
+      // remember, code is a 32 bit integer
+      int shift = bits_remaining - bits_to_write;
+      uint32_t tmp = (code >> shift) & ((1 << bits_to_write) - 1);
+
+      buffer |= tmp;
+
+      bits_remaining -= bits_to_write;
+      buf_capacity -= bits_to_write;
+
+      assert(buf_capacity >= 0);
+
+      if (!buf_capacity) {
+        // flush the buffer
+        fputc(buffer, outfp);
+        buf_capacity = 8;
+        buffer = 0;
+      }
+    }
+  }
+
+  if (buffer) {
+    buffer <<= buf_capacity;
+    fputc(buffer, outfp);
+  }
+
+  fclose(infp);
+  fclose(outfp);
 }
