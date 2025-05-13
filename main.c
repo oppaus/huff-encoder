@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
   int compressed_size = 0;
   for (int i = 0; i < MAXVAL; i++)
     if (codec[i].count)
-      compressed_size += codec[i].count;
+      compressed_size += codec[i].count * codec[i].bits;
 
   fputc(compressed_size, outfp);
 
