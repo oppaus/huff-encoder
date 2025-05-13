@@ -177,8 +177,10 @@ static void _build_codec(struct node *n, uint32_t path, int depth) {
   path = path >> 1;
 }
 
+struct prefix *get_codec() { return codec; }
+
 // traverse the tree and build the prefix codes
-struct prefix *codify() {
+int codify() {
   // initialize the codec table
   for (int i = 0; i < MAXVAL; i++) {
     codec[i].count = 0;
@@ -190,7 +192,12 @@ struct prefix *codify() {
   uint32_t path = 0;
   _build_codec(_root, path, -1);
 
-  return codec;
+  int sizez = 0;
+  for (int i = 0; i < MAXVAL; i++)
+    if (codec[i].count)
+      sizez += codec[i].count * codec[i].bits;
+
+  return sizez;
 }
 
 struct node *get_root() { return _root; }

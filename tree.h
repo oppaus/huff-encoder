@@ -30,7 +30,8 @@ void init_tree();
 void increment(int c);
 void make_binary();
 int depth();
-struct prefix *codify();
+int codify();
+struct prefix *get_codec();
 struct node *get_root();
 
 #ifdef __cplusplus
