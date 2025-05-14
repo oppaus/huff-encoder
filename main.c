@@ -12,14 +12,14 @@
 #define MIN(a, b) (a < b) ? a : b;
 
 int build_encoding(FILE *fp) {
-  init_tree();
+  init_freq();
 
   int ch;
   while ((ch = getc(fp)) != EOF)
     increment(ch);
 
   // convert frequency table to a binary tree
-  make_binary();
+  create_tree();
   return codify();
 }
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
   }
 
   // write out size of compressed data
-  fputc(sizez, outfp);
+  fprintf(outfp, "%d", sizez);
 
   int buf_capacity = 8;
   unsigned char buffer = 0;

@@ -1,10 +1,10 @@
 #include "tree.h"
 #include <gtest/gtest.h>
 
-class CompressorTest : public testing::Test {
+class TestTree : public testing::Test {
 protected:
   void SetUp() override {
-    init_tree();
+    init_freq();
     set_freq('C', 32);
     set_freq('D', 42);
     set_freq('E', 120);
@@ -14,19 +14,20 @@ protected:
     set_freq('U', 37);
     set_freq('Z', 2);
 
-    make_binary();
+    create_tree();
   }
 };
 
-TEST_F(CompressorTest, MakeTreeWorks) {
+TEST_F(TestTree, MakeTreeWorks) {
   struct node *t = get_root();
   EXPECT_EQ(t->count, 306);
 }
 
-TEST_F(CompressorTest, TreeDepth) { EXPECT_EQ(depth(), 6); }
+TEST_F(TestTree, TreeDepth) { EXPECT_EQ(depth(), 6); }
 
-TEST_F(CompressorTest, CodePrefix) {
-  struct prefix *tbl = codify();
+TEST_F(TestTree, Codec) {
+  codify();
+  struct prefix *tbl = get_codec();
   EXPECT_EQ(tbl['C'].count, 32);
   EXPECT_EQ(tbl['Z'].count, 2);
 

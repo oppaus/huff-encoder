@@ -46,7 +46,7 @@ void printArray(struct node arr[], size_t size) {
 }
 
 // initializes the frequency array and pointer look up table
-void init_tree() {
+void init_freq() {
   for (int i = 0; i < MAXVAL; i++) {
     freq[i].id = i + 1;
     freq[i].value = (char)i;
@@ -131,7 +131,7 @@ static int frqcmp(const void *a, const void *b) {
     return 1;
 }
 
-void make_binary() {
+void create_tree() {
   // smallest frequencies to largest
   // NOTE: the lut tracks with this, i.e., no need to sort the lut
   qsort(freq, nelems, sizeof(struct node), frqcmp);
@@ -140,6 +140,14 @@ void make_binary() {
 
   _treeify();
 
+  _root = lut[MAXVAL - 1];
+}
+
+void rebuild_tree() {
+  for (int i = 0; i < MAXVAL; i++)
+    lut[i] = &freq[i];
+
+  _treeify();
   _root = lut[MAXVAL - 1];
 }
 

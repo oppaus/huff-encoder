@@ -26,9 +26,11 @@ extern "C" {
 void set_freq(int c, int v);
 struct node *get_freq();
 void bitstring(char *str, int len, uint32_t bits);
-void init_tree();
+void init_freq();
 void increment(int c);
-void make_binary();
+void create_tree();
+// recreates the tree from an already built frequency table
+void rebuild_tree();
 int depth();
 int codify();
 struct prefix *get_codec();
