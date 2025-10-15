@@ -1,0 +1,5 @@
+If:
+  PathMatch: .*\.cpp
+
+CompileFlags:
+  Add: [-I/opt/homebrew/Cellar/googletest/1.17.0/include]
